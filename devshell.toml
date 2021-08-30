@@ -1,0 +1,44 @@
+imports = [
+  "git.hooks",
+  "language.go",
+]
+
+[devshell]
+name = "gokex"
+
+# Message Of The Day (MOTD) is displayed when entering the environment with an
+# interactive shell. By default it will show the project name.
+#
+# motd = ""
+
+packages = [
+  "diffutils", # used by golangci-lint
+]
+
+[[commands]]
+package = "nixpkgs-fmt"
+category = "formatters"
+
+[[commands]]
+help = "golang linter"
+package = "golangci-lint"
+category = "linters"
+
+[git.hooks]
+enable = true
+pre-commit.text = """
+if git rev-parse --verify HEAD >/dev/null 2>&1
+then
+  against=HEAD
+else
+  # Initial commit: diff against an empty tree object
+  against=$(git hash-object -t tree /dev/null)
+fi
+
+function find_staged {
+  git diff-index --name-only --cached $against --diff-filter d -- "$@"
+}
+
+find_staged '*.nix' | xargs -r nixpkgs-fmt --check || exit
+find_staged '*.go' | xargs -r gofmt -d || exit
+"""
