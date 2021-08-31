@@ -9,15 +9,6 @@ import (
 
 var ForReal bool
 
-var cmdTrade = &cobra.Command{
-	Use: "trade",
-}
-
-var cmdTradeOrder = &cobra.Command{
-	Use:   "order",
-	Short: "Place Order",
-}
-
 var rootCmd = &cobra.Command{
 	Use:   "gokex",
 	Short: "OKEx API client",
@@ -26,7 +17,7 @@ var rootCmd = &cobra.Command{
 func init() {
 	rootCmd.PersistentFlags().BoolVarP(&ForReal, "for-real", "", false, "perform action on the production service instead of the demo endpoint")
 	rootCmd.AddCommand(cmdTrade)
-	cmdTrade.AddCommand(cmdTradeOrder)
+	rootCmd.AddCommand(cmdSystem)
 }
 
 func Execute() {
