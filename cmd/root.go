@@ -21,9 +21,6 @@ var cmdTradeOrder = &cobra.Command{
 var rootCmd = &cobra.Command{
 	Use:   "gokex",
 	Short: "OKEx API client",
-	Run: func(cmd *cobra.Command, args []string) {
-		// Do Stuff Here
-	},
 }
 
 func init() {
