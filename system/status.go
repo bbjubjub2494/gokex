@@ -2,7 +2,7 @@ package system
 
 import (
 	"encoding/json"
-	"github.com/lourkeur/gokex/internal"
+	"github.com/lourkeur/gokex/rest"
 )
 
 type StatusData struct {
@@ -16,8 +16,8 @@ type StatusData struct {
 	ScheDesc    string `json:"scheDesc"`
 }
 
-func Status() ([]StatusData, error) {
-	env, err := internal.Rest.Get("system/status")
+func Status(rest rest.Handle) ([]StatusData, error) {
+	env, err := rest.Get("system/status")
 	if err != nil {
 		return nil, err
 	}
