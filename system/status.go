@@ -16,15 +16,18 @@ type StatusData struct {
 	ScheDesc    string `json:"scheDesc"`
 }
 
-func Status() (*StatusData, error) {
-	data := &StatusData{}
+func Status() ([]StatusData, error) {
 	env, err := internal.Rest.Get("system/status")
 	if err != nil {
 		return nil, err
 	}
-	err = json.Unmarshal(env.Data[0], data)
-	if err != nil {
-		return nil, err
+
+	dst := make([]StatusData, len(env.Data))
+	for i := range env.Data {
+		err = json.Unmarshal(env.Data[i], &dst[i])
+		if err != nil {
+			return nil, err
+		}
 	}
-	return data, nil
+	return dst, nil
 }
