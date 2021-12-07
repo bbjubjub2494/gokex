@@ -53,46 +53,51 @@ var cmdSpot = &cobra.Command{
 	},
 }
 
-var cmdLimit = &cobra.Command{
-	Use:   "limit {buy|sell} inst-id quantity {base_ccy|quote_ccy} price",
-	Short: "Place Spot Order",
-	Args: func(cmd *cobra.Command, args []string) error {
-		if len(args) != 5 {
-			return errors.New("limit expects 5 arguments")
-		}
+func makeLimitCmd(orderType string) *cobra.Command {
+	return &cobra.Command{
+		Use:   orderType + " {buy|sell} inst-id quantity {base_ccy|quote_ccy} price",
+		Short: "Place Spot Limit Order",
+		Args: func(cmd *cobra.Command, args []string) error {
+			if len(args) != 5 {
+				return errors.New(orderType + " expects 5 arguments")
+			}
 
-		side := args[0]
-		if side != "buy" && side != "sell" {
-			return fmt.Errorf("invalid order side: %s, needs to be buy or sell", side)
-		}
-		currency := args[3]
-		if currency != "base_ccy" && currency != "quote_ccy" {
-			return fmt.Errorf("invalid currency: %s, needs to be base_ccy or quote_ccy", currency)
-		}
-		return nil
-	},
-	Run: func(cmd *cobra.Command, args []string) {
-		spec := trade.OrderSpec{
-			TradeMode:    "cash",
-			OrderType:    "limit",
-			Side:         args[0],
-			InstId:       args[1],
-			Quantity:     args[2],
-			QuantityType: args[3],
-			Price:        args[4],
-		}
-		err := doOrder(&spec)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%v", err)
-			os.Exit(1)
-		}
-	},
+			side := args[0]
+			if side != "buy" && side != "sell" {
+				return fmt.Errorf("invalid order side: %s, needs to be buy or sell", side)
+			}
+			currency := args[3]
+			if currency != "base_ccy" && currency != "quote_ccy" {
+				return fmt.Errorf("invalid currency: %s, needs to be base_ccy or quote_ccy", currency)
+			}
+			return nil
+		},
+		Run: func(cmd *cobra.Command, args []string) {
+			spec := trade.OrderSpec{
+				TradeMode:    "cash",
+				OrderType:    orderType,
+				Side:         args[0],
+				InstId:       args[1],
+				Quantity:     args[2],
+				QuantityType: args[3],
+				Price:        args[4],
+			}
+			err := doOrder(&spec)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "%v", err)
+				os.Exit(1)
+			}
+		},
+	}
 }
 
 func init() {
 	cmdTrade.AddCommand(cmdOrder)
 	cmdOrder.AddCommand(cmdSpot)
-	cmdOrder.AddCommand(cmdLimit)
+	cmdOrder.AddCommand(makeLimitCmd("limit"))
+	cmdOrder.AddCommand(makeLimitCmd("post_only"))
+	cmdOrder.AddCommand(makeLimitCmd("ioc"))
+	cmdOrder.AddCommand(makeLimitCmd("fok"))
 }
 
 func doOrder(spec *trade.OrderSpec) error {
