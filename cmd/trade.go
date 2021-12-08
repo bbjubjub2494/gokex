@@ -20,7 +20,7 @@ var cmdOrder = &cobra.Command{
 
 var cmdSpot = &cobra.Command{
 	Use:   "spot {buy|sell} inst-id quantity {base_ccy|quote_ccy}",
-	Short: "Place Spot Order",
+	Short: "Place Spot Market Order",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 4 {
 			return errors.New("spot expects 4 arguments")
@@ -55,20 +55,16 @@ var cmdSpot = &cobra.Command{
 
 func makeLimitCmd(orderType string) *cobra.Command {
 	return &cobra.Command{
-		Use:   orderType + " {buy|sell} inst-id quantity {base_ccy|quote_ccy} price",
+		Use:   orderType + " {buy|sell} inst-id quantity price",
 		Short: "Place Spot Limit Order",
 		Args: func(cmd *cobra.Command, args []string) error {
-			if len(args) != 5 {
-				return errors.New(orderType + " expects 5 arguments")
+			if len(args) != 4 {
+				return errors.New(orderType + " expects 4 arguments")
 			}
 
 			side := args[0]
 			if side != "buy" && side != "sell" {
 				return fmt.Errorf("invalid order side: %s, needs to be buy or sell", side)
-			}
-			currency := args[3]
-			if currency != "base_ccy" && currency != "quote_ccy" {
-				return fmt.Errorf("invalid currency: %s, needs to be base_ccy or quote_ccy", currency)
 			}
 			return nil
 		},
@@ -79,8 +75,7 @@ func makeLimitCmd(orderType string) *cobra.Command {
 				Side:         args[0],
 				InstId:       args[1],
 				Quantity:     args[2],
-				QuantityType: args[3],
-				Price:        args[4],
+				Price:        args[3],
 			}
 			err := doOrder(&spec)
 			if err != nil {
